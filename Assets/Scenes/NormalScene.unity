@@ -2360,7 +2360,7 @@ MonoBehaviour:
   inspectSprite: {fileID: 21300000, guid: 26edb69bddf2dc24fbf0c05ea8ddc8e8, type: 3}
   inspectPages:
   - ...
-  inspectSound: {fileID: 8300000, guid: ea102e485c46066458a38d7439c3813b, type: 3}
+  inspectSound: {fileID: 8300000, guid: 816a913edb159b04baff8e22b4c10a45, type: 3}
 --- !u!1 &922147231
 GameObject:
   m_ObjectHideFlags: 0
