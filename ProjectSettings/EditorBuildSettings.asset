@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: a905bc244fd45ba4a9f3e0b85058a457
+  - enabled: 1
+    path: Assets/Scenes/Intro_Cutscene.unity
+    guid: f18b0cef42da5a44ca6555f2f2ebbb4c
+  - enabled: 1
+    path: Assets/Scenes/PrologRoom.unity
+    guid: 22689551140456849ac7b59676cb7781
+  - enabled: 1
+    path: Assets/Scenes/FirstRoom.unity
+    guid: dcb1ed276ab5bf542a8878f46041aa12
+  - enabled: 1
+    path: Assets/Scenes/NormalScene.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_1_CatFrame.unity
+    guid: 26cfeb9e753fa6f4cb3486989d894361
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_2_CatFood.unity
+    guid: cedec986a84cd1546b61048066c00340
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_3_OwnerFrame.unity
+    guid: e069d3ec20f071e4e94347a107bcac0f
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_4_Window.unity
+    guid: c3dd56d17e707af4691b0335d3d72abe
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_5_Laptop.unity
+    guid: f46d6051d4b585a4c9cf8257c9032d50
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_6_Microwave.unity
+    guid: 005bf0708e6ae5a4bb2d2fa7454dc3f0
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_7_Radio.unity
+    guid: d11cd30fdcba3ad4294e96c5d066ebec
+  - enabled: 1
+    path: Assets/Scenes/Anomaly_8_Vas.unity
+    guid: 59cc2bc15beecc345b6f655f05868ed0
+  - enabled: 1
+    path: Assets/Scenes/EndingRoom.unity
+    guid: 21edd60a4028d4c4f9997212773da193
+  m_configObjects: {}
