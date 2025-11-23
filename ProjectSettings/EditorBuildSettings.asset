@@ -47,4 +47,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/EndingRoom.unity
     guid: 21edd60a4028d4c4f9997212773da193
+  - enabled: 1
+    path: Assets/Scenes/EndingTextScene.unity
+    guid: 5b8c84f3a42a2df488315252047148d3
   m_configObjects: {}

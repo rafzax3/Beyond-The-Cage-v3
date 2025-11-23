@@ -3,8 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-// VERSI SEDERHANA (Hanya bekerja dengan 1 skrip InteractableObject)
-// PERBAIKAN: Fungsi duplikat telah dihapus
 public class InspectManager : MonoBehaviour
 {
     public static InspectManager instance;
@@ -22,7 +20,6 @@ public class InspectManager : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.3f; 
     [SerializeField] private float typingSpeed = 0.05f; 
 
-    // (Variabel Status Internal)
     private PlayerMovement playerMovement;
     private bool isInspecting = false;
     private bool isTransitioning = false; 
@@ -60,7 +57,6 @@ public class InspectManager : MonoBehaviour
         }
     }
 
-    // --- FUNGSI PUBLIK (VERSI SEDERHANA) ---
     public bool IsInspecting() 
     { 
         return isInspecting || isTransitioning; 
@@ -86,7 +82,6 @@ public class InspectManager : MonoBehaviour
             currentInteractable = null;
         }
     }
-    // ------------------------------------
 
     void Update()
     {
@@ -101,7 +96,6 @@ public class InspectManager : MonoBehaviour
 
             if (isInspecting)
             {
-                // Jika sedang inspeksi, lanjutkan/tutup
                 if (isTyping)
                 {
                     if(typingCoroutine != null) StopCoroutine(typingCoroutine);
@@ -115,8 +109,6 @@ public class InspectManager : MonoBehaviour
             }
             else if (currentInteractable != null)
             {
-                // Mulai inspeksi
-                // Cari PlayerMovement HANYA jika kita belum menyimpannya
                 if (playerMovement == null) playerMovement = FindObjectOfType<PlayerMovement>();
                 StartCoroutine(FadeInInspect(currentInteractable));
             }
@@ -144,35 +136,32 @@ public class InspectManager : MonoBehaviour
         
         if(currentInteractable != null) currentInteractable.ShowPrompt(false);
 
-        // --- PERBAIKAN BUG AUDIO ---
-        // Gunakan SetLock (via State Machine) alih-alih .enabled = false
         if (playerMovement != null)
         {
-            // Kunci player, tapi pertahankan arah hadapnya saat ini
             playerMovement.SetLock(true, playerMovement.IsFacingRight()); 
             
-            // Atur animasi ke idle (ini aman)
             Animator playerAnim = playerMovement.GetComponent<Animator>();
             if (playerAnim != null) playerAnim.SetInteger("moveState", 0);
         }
-        // -------------------------
 
-        // Ambil data statis langsung dari objek
         Sprite spriteToShow = objectToInspect.inspectSprite;
         currentPages = objectToInspect.inspectPages;
         AudioClip soundToPlay = objectToInspect.inspectSound;
 
-        // Putar suara
+        int currentHour = GameData.currentHour;
+        currentPages = objectToInspect.GetPagesForCurrentHour(currentHour);
+        Sprite dynamicSprite = objectToInspect.GetSpriteForCurrentHour(currentHour);
+        
+        if (dynamicSprite != null) spriteToShow = dynamicSprite;
+
         if (inspectSFXSource != null && soundToPlay != null)
         {
             inspectSFXSource.PlayOneShot(soundToPlay);
         }
 
-        // Tampilkan gambar
         inspectImage.sprite = spriteToShow;
         inspectImage.enabled = (spriteToShow != null);
         
-        // (Sisa kode setup teks tidak berubah)
         currentPageIndex = 0;
         if (currentPages != null && currentPages.Length > 0 && !string.IsNullOrEmpty(currentPages[0]))
         {
@@ -187,7 +176,6 @@ public class InspectManager : MonoBehaviour
             inspectText.text = "";
         }
 
-        // Mulai Fade In
         float timer = 0f;
         while (timer < fadeDuration)
         {
@@ -199,7 +187,6 @@ public class InspectManager : MonoBehaviour
         inspectCanvasGroup.blocksRaycasts = true; 
         isTransitioning = false;
 
-        // Mulai Tampilkan Teks
         if (currentPages != null && currentPages.Length > 0 && !string.IsNullOrEmpty(currentPages[0]))
         {
             typingCoroutine = StartCoroutine(TypeText(currentPageFullText));
@@ -228,13 +215,10 @@ public class InspectManager : MonoBehaviour
         inspectCanvasGroup.blocksRaycasts = false;
         isTransitioning = false;
 
-        // --- PERBAIKAN BUG AUDIO ---
-        // Kembalikan kontrol ke player menggunakan SetLock
         if (playerMovement != null)
         {
             playerMovement.SetLock(false, playerMovement.IsFacingRight());
         }
-        // -------------------------
         
         if (currentInteractable != null)
         {
@@ -275,7 +259,6 @@ public class InspectManager : MonoBehaviour
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         
-        // Hentikan coroutine yang mungkin sedang berjalan
         StopAllCoroutines(); 
         
         isInspecting = false;
@@ -292,10 +275,7 @@ public class InspectManager : MonoBehaviour
 
         if (playerMovement != null)
         {
-            // Pastikan kita juga menggunakan SetLock di sini!
             playerMovement.SetLock(false, playerMovement.IsFacingRight());
         }
     }
-
-    // --- BLOK FUNGSI DUPLIKAT TELAH DIHAPUS DARI SINI ---
 }

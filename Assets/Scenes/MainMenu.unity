@@ -319,11 +319,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 3a9e394d0e65bdf4ea26017305a4f5e8, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -415,11 +415,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 3d9c2a2b938c07347b15203f49c7a3ba, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.881
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -516,11 +516,8 @@ MonoBehaviour:
   menuMusicSource: {fileID: 321979074}
   gameplayMusicSource: {fileID: 321979073}
   endingMusicSource: {fileID: 321979077}
-  menuMusicClip: {fileID: 8300000, guid: b40aea72f541cc846af31f6fdc80ccd2, type: 3}
-  gameplayMusicClip: {fileID: 8300000, guid: b0096d8eceb057042ab163c3e0d27655, type: 3}
-  endingMusicClip: {fileID: 8300000, guid: 8d127f1a6bbb73b4aab302be079146cb, type: 3}
-  fadeDuration: 1
   maxVolume: 0.762
+  fadeDuration: 1
 --- !u!4 &321979076
 Transform:
   m_ObjectHideFlags: 0
@@ -546,11 +543,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 8d127f1a6bbb73b4aab302be079146cb, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

@@ -1,40 +1,35 @@
 using UnityEngine;
-using System.Collections; // Diperlukan untuk Coroutine
+using System.Collections;
 
-// Versi Final: Menggunakan State Machine (Aktor Cerdas)
-// Menangani 'Turn' dan 'StartRun' serta 'Lock' dari GameManager
 public class PlayerMovement : MonoBehaviour
 {
-    // State internal untuk mengunci input
     private enum ControlState { PlayerControl, IsTurning, LockedByManager }
-    private ControlState currentState = ControlState.LockedByManager; // Mulai terkunci
+    private ControlState currentState = ControlState.LockedByManager;
     
     [Header("Referensi Komponen")]
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer; 
     private Animator anim; 
 
+    [Header("Referensi Bayangan")]
+    [SerializeField] private Animator shadowAnim; 
+    [SerializeField] private SpriteRenderer shadowSpriteRenderer;
+
     [Header("Pengaturan Gerak")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float runSpeed = 8f; 
     
     [Header("Audio")]
-    [Tooltip("Komponen AudioSource di player ini")]
     [SerializeField] private AudioSource sfxSource;
-    [Tooltip("SFX untuk berjalan")]
     [SerializeField] private AudioClip walkSfx;
-    [Tooltip("SFX untuk berlari")]
     [SerializeField] private AudioClip runSfx;
 
-    // Variabel privat
     private float horizontalInput;
     private bool isFacingRight = false; 
     
-    // Variabel HASH (optimasi)
     private int animHash_Turn = Animator.StringToHash("CatTurn"); 
     private int animHash_moveState = Animator.StringToHash("moveState");
     private int animHash_doTurn = Animator.StringToHash("doTurn");
-
 
     void Awake()
     {
@@ -42,35 +37,22 @@ public class PlayerMovement : MonoBehaviour
         anim = GetComponent<Animator>(); 
         spriteRenderer = GetComponent<SpriteRenderer>(); 
         
-        if (sfxSource == null)
-        {
-            sfxSource = GetComponent<AudioSource>();
-        }
+        if (sfxSource == null) sfxSource = GetComponent<AudioSource>();
+
+        if (shadowAnim == null) shadowAnim = GetComponentInChildren<Animator>();
+        if (shadowSpriteRenderer == null && shadowAnim != null)
+            shadowSpriteRenderer = shadowAnim.GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
-        // 1. Dapatkan Input Arah
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-
-        // --- INI PERBAIKAN BUG AUDIO ---
-        // Jika kita tidak diizinkan bergerak (di-lock oleh Pause ATAU Inspect)
         if (currentState != ControlState.PlayerControl)
         {
-            // Hentikan suara langkah kaki
-            if (sfxSource != null && sfxSource.isPlaying)
-            {
-                sfxSource.Stop();
-            }
-            // ------------------
+            if (sfxSource != null && sfxSource.isPlaying) sfxSource.Stop();
 
-            // Cek apakah kita HANYA sedang 'Turn' (dan tidak dikunci Manajer)
             if (currentState == ControlState.IsTurning)
             {
-                // Cek apakah animasi 'Turn' sudah SELESAI
                 AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
-                
                 if (stateInfo.shortNameHash == animHash_Turn && stateInfo.normalizedTime >= 1.0f)
                 {
                     OnTurnAnimationFinished(); 
@@ -82,31 +64,32 @@ public class PlayerMovement : MonoBehaviour
             }
             
             horizontalInput = 0; 
-            return; // Keluar dari Update() (INI MENGHENTIKAN INPUT A/D SAAT PAUSE)
+            return; 
         }
         
-        // --- KONTROL PLAYER AKTIF ---
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        bool isRunning = Input.GetKey(KeyCode.LeftShift);
         GameData.isSprinting = isRunning; 
 
-        // 3. --- LOGIKA GERAKAN DAN BALIK BADAN ---
         if (horizontalInput != 0)
         {
-            // Cek apakah player ingin berbalik
             bool wantsToTurn = (isFacingRight && horizontalInput < 0f) || (!isFacingRight && horizontalInput > 0f);
 
             if (wantsToTurn) 
             {
-                // Player ingin berbalik!
                 currentState = ControlState.IsTurning; 
-                anim.SetTrigger(animHash_doTurn); 
                 
-                if (sfxSource != null) sfxSource.Stop(); // Hentikan SFX saat berbalik
+                anim.SetTrigger(animHash_doTurn); 
+                if (shadowAnim != null) shadowAnim.SetTrigger(animHash_doTurn); 
+
+                if (sfxSource != null) sfxSource.Stop();
             }
             else 
             {
-                // Player bergerak ke arah yang sama (tidak berbalik)
-                if (isRunning) { anim.SetInteger(animHash_moveState, 2); } // Run
-                else { anim.SetInteger(animHash_moveState, 1); } // Walk
+                int moveStateValue = isRunning ? 2 : 1;
+                
+                anim.SetInteger(animHash_moveState, moveStateValue);
+                if (shadowAnim != null) shadowAnim.SetInteger(animHash_moveState, moveStateValue);
 
                 AudioClip clipToPlay = isRunning ? runSfx : walkSfx;
                 if (sfxSource != null && clipToPlay != null)
@@ -120,15 +103,12 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
         }
-        else // horizontalInput == 0
+        else 
         {
-            // Player diam
-            anim.SetInteger(animHash_moveState, 0); // Idle
+            anim.SetInteger(animHash_moveState, 0);
+            if (shadowAnim != null) shadowAnim.SetInteger(animHash_moveState, 0);
             
-            if (sfxSource != null && sfxSource.isPlaying)
-            {
-                sfxSource.Stop(); // Hentikan SFX saat diam
-            }
+            if (sfxSource != null && sfxSource.isPlaying) sfxSource.Stop();
         }
     }
 
@@ -137,11 +117,9 @@ public class PlayerMovement : MonoBehaviour
         if (currentState != ControlState.PlayerControl) 
         {
             rb.velocity = Vector2.zero; 
-            rb.MovePosition(rb.position); 
             return;
         }
 
-        // Terapkan Gerakan
         float currentSpeed = GameData.isSprinting ? runSpeed : walkSpeed;
         Vector2 newPosition = rb.position + new Vector2(horizontalInput * currentSpeed * Time.fixedDeltaTime, 0f);
         rb.MovePosition(newPosition);
@@ -157,14 +135,20 @@ public class PlayerMovement : MonoBehaviour
     
     public void ForceFaceDirection(bool faceRight)
     {
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = GetComponent<SpriteRenderer>();
-        }
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        
         isFacingRight = faceRight;
-        spriteRenderer.flipX = faceRight; 
+        if (spriteRenderer != null) spriteRenderer.flipX = faceRight; 
+
+        if (shadowSpriteRenderer != null) shadowSpriteRenderer.flipX = faceRight;
     }
     
+    public void SetScriptedAnimation(int state)
+    {
+        if (anim != null) anim.SetInteger(animHash_moveState, state);
+        if (shadowAnim != null) shadowAnim.SetInteger(animHash_moveState, state);
+    }
+
     public void SetLock(bool isLocked, bool forceFacingRight)
     {
         if (isLocked)
@@ -172,15 +156,17 @@ public class PlayerMovement : MonoBehaviour
             currentState = ControlState.LockedByManager;
             ForceFaceDirection(forceFacingRight);
             
-            if (sfxSource != null) sfxSource.Stop(); // Hentikan SFX saat di-lock
+            if (sfxSource != null) sfxSource.Stop();
         }
         else
         {
             currentState = ControlState.PlayerControl;
+            
+            anim.SetInteger(animHash_moveState, 0);
+            if (shadowAnim != null) shadowAnim.SetInteger(animHash_moveState, 0);
         }
     }
 
-    // Fungsi ini dibutuhkan oleh InspectManager
     public bool IsFacingRight()
     {
         return isFacingRight;

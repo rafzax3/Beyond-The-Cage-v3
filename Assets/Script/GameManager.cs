@@ -7,21 +7,17 @@ using System.Collections;
 public class GameManager : MonoBehaviour
 {
     [Header("Tipe Lorong")]
-    [Tooltip("Centang ini HANYA untuk scene 'FirstRoom'/'SecondRoom'")]
     [SerializeField] private bool isPrologRoom = false;
     
-    [Header("Pengaturan Ukuran Player")]
-    [Tooltip("Ukuran player di scene prolog (misal: 2, 2)")]
-    [SerializeField] private Vector2 prologPlayerScale = new Vector2(1.5f, 1.5f);
-    [Tooltip("Ukuran player normal (misal: 1, 1)")]
-    [SerializeField] private Vector2 normalPlayerScale = new Vector2(1f, 1f);
-    
-    [Tooltip("Jika 'isPrologRoom', isi dengan nama scene prolog BERIKUTNYA")]
     [SerializeField] private string nextPrologSceneName = "SecondRoom";
 
+    [Header("Pengaturan Ukuran Player")]
+    [SerializeField] private Vector2 prologPlayerScale = new Vector2(1.5f, 1.5f);
+    [SerializeField] private Vector2 normalPlayerScale = new Vector2(1f, 1f);
+    
     [Header("Scene Names")]
     [SerializeField] private string normalSceneName = "Lorong_Normal";
-    [SerializeField] private List<string> anomalySceneNames; // <- Nama yang Benar
+    [SerializeField] private List<string> anomalySceneNames;
     [SerializeField] private string endingRoomName = "EndingRoom"; 
 
     [Header("Scene References")]
@@ -60,12 +56,12 @@ public class GameManager : MonoBehaviour
         if (GameData.spawnPlayerFromLeft)
         {
             player.transform.position = spawnPointLeft.position;
-            playerMovement.SetLock(true, true); 
+            if (playerMovement != null) playerMovement.SetLock(true, true); 
         }
         else
         {
             player.transform.position = spawnPointRight.position;
-            playerMovement.SetLock(true, false); 
+            if (playerMovement != null) playerMovement.SetLock(true, false); 
         }
     }
 
@@ -73,27 +69,14 @@ public class GameManager : MonoBehaviour
     {
         if (isPrologRoom)
         {
-            if (player != null)
-            {
-                player.transform.localScale = new Vector3(prologPlayerScale.x, prologPlayerScale.y, 1f);
-            }
+            if (player != null) player.transform.localScale = new Vector3(prologPlayerScale.x, prologPlayerScale.y, 1f);
         }
         else
         {
-            if (player != null)
-            {
-                player.transform.localScale = new Vector3(normalPlayerScale.x, normalPlayerScale.y, 1f);
-            }
-
+            if (player != null) player.transform.localScale = new Vector3(normalPlayerScale.x, normalPlayerScale.y, 1f);
+            
             CameraFollow mainCameraFollow = FindObjectOfType<CameraFollow>();
-            if (mainCameraFollow != null && player != null)
-            {
-                mainCameraFollow.target = player.transform;
-            }
-            else if(mainCameraFollow == null)
-            {
-                Debug.LogWarning("Scene ini adalah lorong, tapi 'Main Camera' tidak punya skrip 'CameraFollow.cs'!");
-            }
+            if (mainCameraFollow != null && player != null) mainCameraFollow.target = player.transform;
         }
 
         if (MusicManager.instance != null)
@@ -107,9 +90,7 @@ public class GameManager : MonoBehaviour
             if (allClocksInScene != null)
             {
                 foreach (BackgroundClock clock in allClocksInScene)
-                {
                     if(clock != null) clock.gameObject.SetActive(false);
-                }
             }
         }
         else
@@ -136,9 +117,10 @@ public class GameManager : MonoBehaviour
     private IEnumerator Sequence_PlayerWalkIn()
     {
         float walkDirection = GameData.spawnPlayerFromLeft ? 1f : -1f;
+        
         StartCoroutine(FadeManager.instance.FadeIn());
         
-        if(playerAnimator != null) playerAnimator.SetInteger("moveState", 1); 
+        if (playerMovement != null) playerMovement.SetScriptedAnimation(1); 
 
         float timer = 0f;
         while (timer < autoWalkDuration)
@@ -148,8 +130,10 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         
-        if(playerAnimator != null) playerAnimator.SetInteger("moveState", 0);
-        playerMovement.SetLock(false, true); 
+        if (playerMovement != null) playerMovement.SetScriptedAnimation(0); 
+        
+        if (playerMovement != null) 
+            playerMovement.SetLock(false, GameData.spawnPlayerFromLeft); 
     }
 
     public void PlayerHitDoor(string doorID)
@@ -157,14 +141,20 @@ public class GameManager : MonoBehaviour
         if (isTransitioning) return;
         isTransitioning = true;
         
-        playerMovement.SetLock(true, (doorID == "Right")); 
+        bool faceRight = (doorID == "Right");
+        if (playerMovement != null)
+        {
+            playerMovement.SetLock(true, faceRight); 
+        }
+        
         StartCoroutine(Sequence_PlayerWalkOut(doorID));
     }
     
     private IEnumerator Sequence_PlayerWalkOut(string doorID)
     {
         float walkDirection = (doorID == "Right") ? 1f : -1f;
-        if(playerAnimator != null) playerAnimator.SetInteger("moveState", 1);
+        
+        if(playerMovement != null) playerMovement.SetScriptedAnimation(1);
 
         StartCoroutine(FadeManager.instance.FadeOut());
         
@@ -178,21 +168,19 @@ public class GameManager : MonoBehaviour
         
         if (isPrologRoom)
         {
-            if (doorID == "Right")
+            if (doorID == "Right") 
             {
                 GameData.spawnPlayerFromLeft = true; 
-                if (nextPrologSceneName == normalSceneName)
-                {
-                    GameData.currentHour = 0; 
-                }
+                if (nextPrologSceneName == normalSceneName) GameData.currentHour = 0; 
+                
                 SceneManager.LoadScene(nextPrologSceneName);
             }
             yield break; 
         }
         
         bool correctChoice = false;
-        if (doorID == "Right") correctChoice = !isThisSceneAnomaly;
-        else if (doorID == "Left") correctChoice = isThisSceneAnomaly;
+        if (doorID == "Right") correctChoice = !isThisSceneAnomaly; 
+        else if (doorID == "Left") correctChoice = isThisSceneAnomaly; 
 
         if (doorID == "Right") GameData.spawnPlayerFromLeft = true;
         else GameData.spawnPlayerFromLeft = false;
@@ -200,9 +188,8 @@ public class GameManager : MonoBehaviour
         if (correctChoice)
         {
             GameData.currentHour++;
-            
-            if (GameData.currentHour == finalHour)
-            {
+            if (GameData.currentHour == finalHour) 
+            { 
                 LoadNextHallway(true); 
                 yield break; 
             }
@@ -229,10 +216,9 @@ public class GameManager : MonoBehaviour
             
             if (GameData.isAnomalyPresent)
             {
-                // --- INI PERBAIKANNYA ---
                 if (anomalySceneNames == null || anomalySceneNames.Count == 0)
                 {
-                    Debug.LogError("Daftar 'Anomaly Scene Names' di GameManager masih kosong!");
+                    Debug.LogError("Daftar Anomaly Scene kosong!");
                     sceneToLoad = normalSceneName; 
                 }
                 else
@@ -240,7 +226,6 @@ public class GameManager : MonoBehaviour
                     int randomIndex = Random.Range(0, anomalySceneNames.Count);
                     sceneToLoad = anomalySceneNames[randomIndex];
                 }
-                // -------------------------
             }
             else
             {
@@ -248,7 +233,6 @@ public class GameManager : MonoBehaviour
             }
         } 
         
-        Debug.Log($"Memuat scene berikutnya: {sceneToLoad} (Jam: {GameData.currentHour})");
         SceneManager.LoadScene(sceneToLoad);
     }
 
@@ -258,6 +242,7 @@ public class GameManager : MonoBehaviour
         {
             int displayHour = (hour == 0) ? 12 : hour;
             if(hour >= finalHour) displayHour = finalHour; 
+            
             loopCounterText.text = "Jam: " + displayHour.ToString("D2") + ":00";
         }
     }

@@ -1,64 +1,94 @@
 using UnityEngine;
 using System.Collections;
 
-// DITEMPEL DI PREFAB PLAYER
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerLightReceiver : MonoBehaviour
 {
-    [Tooltip("Warna 'ambient' atau default player di ruangan gelap")]
-    [SerializeField] private Color ambientColor = new Color(0.5f, 0.5f, 0.5f, 1f); // Abu-abu gelap
+    [SerializeField] private Color ambientColor = new Color(0.5f, 0.5f, 0.5f, 1f);
 
     private SpriteRenderer myRenderer;
     private Coroutine colorFadeCoroutine;
+    
+    private bool isDarknessOverride = false;
+    private Color lastTargetColor; 
 
     void Awake()
     {
         myRenderer = GetComponent<SpriteRenderer>();
-        // Set warna awal ke warna ambient
         myRenderer.color = ambientColor;
+        lastTargetColor = ambientColor;
     }
 
-    // Dipanggil oleh LightingZone saat player KELUAR dari zona terang
+    public Color GetCurrentAmbientColor()
+    {
+        return ambientColor;
+    }
+
+    public void SetDarknessOverride(bool isOverride, Color darkColor)
+    {
+        isDarknessOverride = isOverride;
+
+        if (isOverride)
+        {
+            if (colorFadeCoroutine != null) StopCoroutine(colorFadeCoroutine);
+            
+            myRenderer.color = darkColor;
+        }
+        else
+        {
+            if (colorFadeCoroutine != null) StopCoroutine(colorFadeCoroutine);
+            colorFadeCoroutine = StartCoroutine(FadeTo(lastTargetColor, 0.1f));
+        }
+    }
+
     public void ReturnToAmbient(float duration)
     {
         SetTargetColor(ambientColor, duration, false);
     }
 
-    // Dipanggil oleh LightingZone saat player MASUK ke zona
     public void SetTargetColor(Color newColor, float duration, bool isNewAmbient)
     {
-        // Jika ini adalah zona ambient baru (misal: masuk ruangan baru),
-        // simpan sebagai warna default baru.
         if (isNewAmbient)
         {
             ambientColor = newColor;
         }
 
-        // Hentikan coroutine yang sedang berjalan agar tidak "berkelahi"
+        lastTargetColor = newColor;
+
+        if (isDarknessOverride) return;
+
         if (colorFadeCoroutine != null)
         {
             StopCoroutine(colorFadeCoroutine);
         }
 
-        // Mulai coroutine baru untuk mengubah warna
         colorFadeCoroutine = StartCoroutine(FadeTo(newColor, duration));
     }
 
     private IEnumerator FadeTo(Color targetColor, float duration)
     {
+        if (duration <= 0f)
+        {
+            myRenderer.color = targetColor;
+            yield break;
+        }
+
         Color startColor = myRenderer.color;
         float timer = 0f;
 
         while (timer < duration)
         {
+            if (isDarknessOverride) yield break;
+
             timer += Time.deltaTime;
-            // Ubah warna secara bertahap
             myRenderer.color = Color.Lerp(startColor, targetColor, timer / duration);
             yield return null;
         }
 
-        // Pastikan warna akhir akurat
-        myRenderer.color = targetColor;
+        if (!isDarknessOverride)
+        {
+            myRenderer.color = targetColor;
+        }
         colorFadeCoroutine = null;
     }
 }

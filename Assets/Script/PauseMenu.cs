@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // <-- DIPERLUKAN UNTUK CEK SCENE
+using UnityEngine.SceneManagement; 
 using UnityEngine.UI;
 using System.Collections;
 
@@ -21,7 +21,6 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private AudioClip navSfx;
     [SerializeField] private AudioClip submitSfx;
 
-    // Status Internal
     private Button[] buttons;
     private int selectedIndex = 0;
     private bool isPaused = false;
@@ -53,15 +52,11 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        // --- PERBAIKAN BUG BARU ---
-        // Cek apakah kita sedang di Main Menu. Jika ya, JANGAN lakukan apa-apa.
         string currentSceneName = SceneManager.GetActiveScene().name;
         if (currentSceneName == mainMenuSceneName)
         {
-            // Jika kita di Main Menu, abaikan semua input 'Escape'
             return;
         }
-        // -------------------------
 
         if (resumeCoroutine != null || quitCoroutine != null) return;
 
@@ -83,7 +78,6 @@ public class PauseMenu : MonoBehaviour
 
         if (!isPaused) return;
 
-        // Navigasi A/D
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             selectedIndex--;

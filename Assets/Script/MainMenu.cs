@@ -3,29 +3,22 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// Ditempel di 'MenuManager' di scene MainMenu
 public class MainMenu : MonoBehaviour
 {
     [Header("Pengaturan Scene")]
-    [Tooltip("Nama scene pertama yang akan dimuat (misal: Cutscene)")]
     [SerializeField] private string firstSceneName;
 
     [Header("Referensi Tombol")]
     [SerializeField] private Button playButton;
-    [Tooltip("Tombol untuk membuka panel credits")]
     [SerializeField] private Button creditsButton; 
     [SerializeField] private Button quitButton;
 
     [Header("Referensi Panel")]
-    [Tooltip("Panel UI yang berisi info credits")]
     [SerializeField] private GameObject creditsPanel;
 
     [Header("Audio")]
-    [Tooltip("Sumber SFX untuk UI (Seret dari PauseManager)")]
     [SerializeField] private AudioSource sfxSourceUI;
-    [Tooltip("SFX saat pindah tombol (navigasi)")]
     [SerializeField] private AudioClip navSfx;
-    [Tooltip("SFX saat memilih tombol (submit)")]
     [SerializeField] private AudioClip submitSfx;
 
     private Button[] buttons;
@@ -36,6 +29,10 @@ public class MainMenu : MonoBehaviour
     IEnumerator Start()
     {
         Time.timeScale = 1f;
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         buttons = new Button[] { playButton, creditsButton, quitButton };
         
         if (creditsPanel != null) creditsPanel.SetActive(false);
@@ -57,31 +54,26 @@ public class MainMenu : MonoBehaviour
     {
         if (isTransitioning) return;
 
-        // --- LOGIKA STATE DIPERBARUI ---
         if (isViewingCredits)
         {
-            // Jika kita sedang melihat credits,
-            // dengarkan 'Escape' ATAU 'E' (Submit) untuk kembali.
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.E))
             {
                 HideCredits();
             }
-            return; // Hentikan di sini.
+            return; 
         }
-        // -------------------------
 
-        // --- Navigasi Menu Utama (W/S) ---
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             selectedIndex--;
-            if (selectedIndex < 0) selectedIndex = buttons.Length - 1; // Wrap ke bawah
+            if (selectedIndex < 0) selectedIndex = buttons.Length - 1; 
             UpdateSelection();
             if (sfxSourceUI != null && navSfx != null) sfxSourceUI.PlayOneShot(navSfx);
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
             selectedIndex++;
-            if (selectedIndex >= buttons.Length) selectedIndex = 0; // Wrap ke atas
+            if (selectedIndex >= buttons.Length) selectedIndex = 0; 
             UpdateSelection();
             if (sfxSourceUI != null && navSfx != null) sfxSourceUI.PlayOneShot(navSfx);
         }
@@ -123,7 +115,6 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // --- FUNGSI BARU UNTUK CREDITS ---
     void ShowCredits()
     {
         if (creditsPanel == null) return;
@@ -135,22 +126,24 @@ public class MainMenu : MonoBehaviour
     {
         if (creditsPanel == null) return;
         
-        // Putar suara "kembali" (kita pakai navSfx)
         if (sfxSourceUI != null && navSfx != null) sfxSourceUI.PlayOneShot(navSfx); 
         
         isViewingCredits = false;
         creditsPanel.SetActive(false);
         
-        // Fokuskan kembali ke tombol "Credits" (yang index-nya 1)
         selectedIndex = 1; 
         UpdateSelection();
     }
-    // ---------------------------------
 
     public void StartGame()
     {
         if (isTransitioning) return;
         isTransitioning = true;
+        
+        if (MusicManager.instance != null)
+        {
+            MusicManager.instance.StopAllMusic();
+        }
         
         SceneManager.LoadScene(firstSceneName);
     }

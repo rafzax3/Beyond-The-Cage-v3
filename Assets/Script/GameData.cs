@@ -1,4 +1,3 @@
-// Script ini TIDAK ditempel ke objek manapun.
 public static class GameData
 {
     public static int currentHour = 0;
