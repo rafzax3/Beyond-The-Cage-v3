@@ -15,7 +15,7 @@ public class WindowJumpscare : MonoBehaviour
 
     [Header("Efek Petir (Flash)")]
     [SerializeField] private SpriteRenderer flashOverlay;
-    
+
     [Header("Audio")]
     [SerializeField] private AudioClip thunderSfx;
 
@@ -42,13 +42,18 @@ public class WindowJumpscare : MonoBehaviour
         if (flashOverlay != null)
         {
             flashOverlay.color = new Color(1, 1, 1, 0);
-            flashOverlay.sortingLayerName = "Foreground"; 
+            flashOverlay.sortingLayerName = "Foreground";
             flashOverlay.sortingOrder = 100;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!GameData.isAnomalyPresent)
+        {
+            return;
+        }
+
         if (!hasTriggered && other.CompareTag("Player"))
         {
             hasTriggered = true;
@@ -65,23 +70,23 @@ public class WindowJumpscare : MonoBehaviour
 
         if (flashOverlay != null)
         {
-            flashOverlay.color = Color.white; 
-            
+            flashOverlay.color = Color.white;
+
             if (targetVideoPlayer != null && scareWindowClip != null)
             {
                 targetVideoPlayer.Stop();
                 targetVideoPlayer.clip = scareWindowClip;
-                targetVideoPlayer.isLooping = false; 
+                targetVideoPlayer.isLooping = false;
                 targetVideoPlayer.Play();
             }
 
-            yield return new WaitForSeconds(0.1f); 
-            
-            flashOverlay.color = new Color(1, 1, 1, 0); 
+            yield return new WaitForSeconds(0.1f);
+
+            flashOverlay.color = new Color(1, 1, 1, 0);
             yield return new WaitForSeconds(0.05f);
-            flashOverlay.color = new Color(1, 1, 1, 0.5f); 
+            flashOverlay.color = new Color(1, 1, 1, 0.5f);
             yield return new WaitForSeconds(0.05f);
-            flashOverlay.color = new Color(1, 1, 1, 0); 
+            flashOverlay.color = new Color(1, 1, 1, 0);
         }
     }
 }

@@ -319,7 +319,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 3a9e394d0e65bdf4ea26017305a4f5e8, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 3251d024ca87acf4784c1dd9d03402c8, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -417,7 +417,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 3d9c2a2b938c07347b15203f49c7a3ba, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.881
+  m_Volume: 0.772
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -516,7 +516,7 @@ MonoBehaviour:
   menuMusicSource: {fileID: 321979074}
   gameplayMusicSource: {fileID: 321979073}
   endingMusicSource: {fileID: 321979077}
-  maxVolume: 0.762
+  maxVolume: 0.697
   fadeDuration: 1
 --- !u!4 &321979076
 Transform:
@@ -543,7 +543,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 8d127f1a6bbb73b4aab302be079146cb, type: 3}
+  m_audioClip: {fileID: 8300000, guid: fc3bc3f4ffd19434fbb0fa86176d4b3a, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -2208,6 +2208,116 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1790403148}
   m_CullTransparentMesh: 1
+--- !u!1001 &7757414120793176899
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1731599059838611694, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_Name
+      value: TutorialManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 4542137059521993782, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 8.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4542137059521993782, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 8.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4542137059521993782, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 8.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 5730419230316675891, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: letterRoomText
+      value: 'Pay attention to your surroundings. If anything has changed from before,
+        go back to the left. Also pay attention to any changes in sound
+
+        (Hint
+        is available in pause menu)'
+      objectReference: {fileID: 0}
+    - target: {fileID: 5730419230316675891, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: letterPauseText
+      value: Pay attention to your surroundings. If anything has changed from before,
+        go back to the left. Also pay attention to any changes in sound.
+      objectReference: {fileID: 0}
+    - target: {fileID: 7274179481159651740, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1397.8928
+      objectReference: {fileID: 0}
+    - target: {fileID: 7274179481159651740, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8213810478136664309, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_Name
+      value: Animation
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 48.276043
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.051354446
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.40806338
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8259166900150811258, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8384830316124567490, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_Name
+      value: LetterPopUpTutorial
+      objectReference: {fileID: 0}
+    - target: {fileID: 8616368799163824794, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_fontSize
+      value: 35.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8616368799163824794, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_lineSpacing
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 8616368799163824794, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 35.3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2c3ffc3e88055b540b974a847084745a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2219,3 +2329,4 @@ SceneRoots:
   - {fileID: 1599129685}
   - {fileID: 321979076}
   - {fileID: 526242554}
+  - {fileID: 7757414120793176899}

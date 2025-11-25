@@ -34,6 +34,7 @@ Transform:
   - {fileID: 1619198683700503993}
   - {fileID: 354120581874429835}
   - {fileID: 2681237287816748854}
+  - {fileID: 3668146370620141307}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1483263568553062768
@@ -95,16 +96,111 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   promptUI: {fileID: 1880942518134512628}
   inspectSprite: {fileID: 21300000, guid: 5187e764501dbd34f86e5166a09f7d9a, type: 3}
-  inspectPages:
-  - 'Name : Lyx
-
-    Age : 1 years old
-
-    Sex : Male'
-  - 'Note : Be gentle and patient to lyx. he is very active and often shows symptoms
-    of anxiety during the night (12-6 AM)'
-  - Keep going straight, go back if something in the room changes
   inspectSound: {fileID: 8300000, guid: 47a7cd35ed1d8794a9e361c9c5fa75a8, type: 3}
+  sprite_Hour0: {fileID: 0}
+  sprite_Hour1: {fileID: 0}
+  sprite_Hour2: {fileID: 0}
+  sprite_Hour3: {fileID: 0}
+  sprite_Hour4: {fileID: 0}
+  sprite_Hour5: {fileID: 0}
+  sprite_Hour6: {fileID: 0}
+  pages_Hour0: []
+  pages_Hour1: []
+  pages_Hour2: []
+  pages_Hour3: []
+  pages_Hour4: []
+  pages_Hour5: []
+  pages_Hour6: []
+--- !u!1 &3155781887935142402
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3668146370620141307}
+  - component: {fileID: 7344828887178020255}
+  - component: {fileID: 6046023113913820522}
+  m_Layer: 0
+  m_Name: TriggerSurat
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3668146370620141307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3155781887935142402}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.2322515, y: 1.4814503, z: -0.041847207}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1244286718225223422}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &7344828887178020255
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3155781887935142402}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.8390622, y: -0.6126151}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 2.6781244, y: 2.2252302}
+  m_EdgeRadius: 0
+--- !u!114 &6046023113913820522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3155781887935142402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01e0d8fb72090ae4799b532412de4e3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6297665478287675277
 GameObject:
   m_ObjectHideFlags: 0

@@ -233,7 +233,8 @@ MonoBehaviour:
   shadowAnim: {fileID: 3161280834900970303}
   shadowSpriteRenderer: {fileID: 8296548157674980280}
   walkSpeed: 6
-  runSpeed: 14
+  runSpeed: 50
+  canRun: 1
   sfxSource: {fileID: 5273486346375841594}
   walkSfx: {fileID: 8300000, guid: 0be106727dc5aef4eb0b0d8451195b17, type: 3}
   runSfx: {fileID: 8300000, guid: 2288648669d49bf48a794f38eee7004a, type: 3}

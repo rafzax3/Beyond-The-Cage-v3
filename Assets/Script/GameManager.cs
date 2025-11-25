@@ -4,11 +4,11 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
 
+[RequireComponent(typeof(AudioSource))] // Butuh AudioSource untuk SFX Pintu
 public class GameManager : MonoBehaviour
 {
     [Header("Tipe Lorong")]
     [SerializeField] private bool isPrologRoom = false;
-    
     [SerializeField] private string nextPrologSceneName = "SecondRoom";
 
     [Header("Pengaturan Ukuran Player")]
@@ -19,6 +19,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string normalSceneName = "Lorong_Normal";
     [SerializeField] private List<string> anomalySceneNames;
     [SerializeField] private string endingRoomName = "EndingRoom"; 
+
+    [Header("Audio Khusus")]
+    [Tooltip("Suara yang akan diputar SEKALI saat scene ini dimulai (misal: Pintu Tertutup)")]
+    [SerializeField] private AudioClip startSceneSfx; 
 
     [Header("Scene References")]
     [SerializeField] private GameObject player; 
@@ -38,12 +42,20 @@ public class GameManager : MonoBehaviour
     
     private bool isThisSceneAnomaly = false;
     private bool isTransitioning = false; 
+    private AudioSource sfxSource; // AudioSource lokal GameManager
 
     void Awake()
     {
+        sfxSource = GetComponent<AudioSource>();
+
         if (isPrologRoom)
         {
-            GameData.currentHour = 0;
+            string currentScene = SceneManager.GetActiveScene().name;
+            if (currentScene == "PrologRoom") 
+            {
+                GameData.ResetAllData(); 
+            }
+            
             GameData.spawnPlayerFromLeft = true;
             GameData.isAnomalyPresent = false;
             isThisSceneAnomaly = false; 
@@ -67,9 +79,26 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // --- PLAY START SFX (BARU) ---
+        if (sfxSource != null && startSceneSfx != null)
+        {
+            sfxSource.PlayOneShot(startSceneSfx);
+        }
+        // -----------------------------
+
         if (isPrologRoom)
         {
             if (player != null) player.transform.localScale = new Vector3(prologPlayerScale.x, prologPlayerScale.y, 1f);
+            
+            string currentScene = SceneManager.GetActiveScene().name;
+            if (currentScene == "PrologRoom") 
+            {
+                if (playerMovement != null) playerMovement.canRun = false; 
+            }
+            else
+            {
+                if (playerMovement != null) playerMovement.canRun = true; 
+            }
         }
         else
         {
@@ -87,10 +116,19 @@ public class GameManager : MonoBehaviour
         if (isPrologRoom)
         {
             if (loopCounterText != null) loopCounterText.gameObject.SetActive(false);
+            
+            bool showClock = (SceneManager.GetActiveScene().name == "SecondRoom"); 
+
             if (allClocksInScene != null)
             {
                 foreach (BackgroundClock clock in allClocksInScene)
-                    if(clock != null) clock.gameObject.SetActive(false);
+                {
+                    if (clock != null) 
+                    {
+                        clock.gameObject.SetActive(showClock);
+                        if(showClock) clock.SetClockHour(0); 
+                    }
+                }
             }
         }
         else
@@ -134,6 +172,27 @@ public class GameManager : MonoBehaviour
         
         if (playerMovement != null) 
             playerMovement.SetLock(false, GameData.spawnPlayerFromLeft); 
+            
+        if (TutorialManager.instance != null)
+        {
+            string currentScene = SceneManager.GetActiveScene().name;
+
+            if (currentScene == "PrologRoom")
+            {
+                TutorialManager.instance.TriggerWalkTutorial();
+            }
+            else if (currentScene == "FirstRoom")
+            {
+                TutorialManager.instance.TriggerRunTutorial();
+            }
+            else if (!isPrologRoom && GameData.currentHour == 1)
+            {
+                if (!GameData.tutorialLetterShown)
+                {
+                    TutorialManager.instance.PlayMeowSound();
+                }
+            }
+        }
     }
 
     public void PlayerHitDoor(string doorID)
@@ -152,6 +211,11 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator Sequence_PlayerWalkOut(string doorID)
     {
+        if (TutorialManager.instance != null)
+        {
+            TutorialManager.instance.HideAllTutorials();
+        }
+
         float walkDirection = (doorID == "Right") ? 1f : -1f;
         
         if(playerMovement != null) playerMovement.SetScriptedAnimation(1);
@@ -171,7 +235,7 @@ public class GameManager : MonoBehaviour
             if (doorID == "Right") 
             {
                 GameData.spawnPlayerFromLeft = true; 
-                if (nextPrologSceneName == normalSceneName) GameData.currentHour = 0; 
+                if (nextPrologSceneName == normalSceneName) GameData.currentHour = 0; // Reset jam ke 0 (Jam 12) saat masuk Loop pertama kali
                 
                 SceneManager.LoadScene(nextPrologSceneName);
             }
@@ -196,7 +260,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            GameData.currentHour = 0; 
+            GameData.currentHour = 0; // Reset ke Jam 12
         }
         
         LoadNextHallway(false);
@@ -212,7 +276,14 @@ public class GameManager : MonoBehaviour
         }
         else 
         {
-            GameData.isAnomalyPresent = (Random.value < 0.5f);
+            if (GameData.currentHour == 0) 
+            {
+                GameData.isAnomalyPresent = (Random.value < 0.5f);
+            }
+            else 
+            {
+                GameData.isAnomalyPresent = (Random.value < 0.5f);
+            }
             
             if (GameData.isAnomalyPresent)
             {

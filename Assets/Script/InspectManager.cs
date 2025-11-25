@@ -144,15 +144,13 @@ public class InspectManager : MonoBehaviour
             if (playerAnim != null) playerAnim.SetInteger("moveState", 0);
         }
 
-        Sprite spriteToShow = objectToInspect.inspectSprite;
-        currentPages = objectToInspect.inspectPages;
-        AudioClip soundToPlay = objectToInspect.inspectSound;
-
+        // --- PERBAIKAN DISINI: Panggil fungsi, bukan akses variabel ---
         int currentHour = GameData.currentHour;
-        currentPages = objectToInspect.GetPagesForCurrentHour(currentHour);
-        Sprite dynamicSprite = objectToInspect.GetSpriteForCurrentHour(currentHour);
         
-        if (dynamicSprite != null) spriteToShow = dynamicSprite;
+        Sprite spriteToShow = objectToInspect.GetSpriteForCurrentHour(currentHour);
+        currentPages = objectToInspect.GetPagesForCurrentHour(currentHour);
+        AudioClip soundToPlay = objectToInspect.inspectSound;
+        // -------------------------------------------------------------
 
         if (inspectSFXSource != null && soundToPlay != null)
         {

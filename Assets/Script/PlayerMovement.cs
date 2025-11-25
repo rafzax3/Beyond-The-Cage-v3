@@ -17,7 +17,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Pengaturan Gerak")]
     [SerializeField] private float walkSpeed = 5f;
-    [SerializeField] private float runSpeed = 8f; 
+    [SerializeField] private float runSpeed = 8f;
+    
+    // --- FITUR BARU ---
+    [Tooltip("Apakah player diizinkan berlari? (Diatur oleh GameManager)")]
+    public bool canRun = true; 
+    // -----------------
     
     [Header("Audio")]
     [SerializeField] private AudioSource sfxSource;
@@ -68,7 +73,12 @@ public class PlayerMovement : MonoBehaviour
         }
         
         horizontalInput = Input.GetAxisRaw("Horizontal");
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        
+        // --- LOGIKA LARI DIPERBARUI ---
+        // Hanya bisa lari jika tekan Shift DAN canRun == true
+        bool isRunning = Input.GetKey(KeyCode.LeftShift) && canRun;
+        // ------------------------------
+        
         GameData.isSprinting = isRunning; 
 
         if (horizontalInput != 0)
@@ -138,6 +148,7 @@ public class PlayerMovement : MonoBehaviour
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         
         isFacingRight = faceRight;
+        
         if (spriteRenderer != null) spriteRenderer.flipX = faceRight; 
 
         if (shadowSpriteRenderer != null) shadowSpriteRenderer.flipX = faceRight;
@@ -156,6 +167,12 @@ public class PlayerMovement : MonoBehaviour
             currentState = ControlState.LockedByManager;
             ForceFaceDirection(forceFacingRight);
             
+            // --- PENTING: Matikan animasi saat dilock (Misal saat Hint muncul) ---
+            // Kecuali nanti di-override oleh SetScriptedAnimation dari GameManager
+            if (anim != null) anim.SetInteger(animHash_moveState, 0);
+            if (shadowAnim != null) shadowAnim.SetInteger(animHash_moveState, 0);
+            // -------------------------------------------------------------------
+
             if (sfxSource != null) sfxSource.Stop();
         }
         else

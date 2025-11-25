@@ -9,6 +9,11 @@ public class FlickeringLight : MonoBehaviour
 
     [Header("Efek Ruangan & Player")]
     [SerializeField] private SpriteRenderer roomDarknessOverlay;
+    
+    // GANTI INI: Bukan Renderer jendela, tapi Overlay Gelap KHUSUS Jendela
+    [Tooltip("Sprite Hitam yang menempel di depan jendela video (untuk menggelapkannya)")]
+    [SerializeField] private SpriteRenderer windowDarknessOverlay; 
+
     [Range(0f, 1f)] [SerializeField] private float darknessIntensity = 0.7f;
     [SerializeField] private Color playerDarkColor = new Color(0.4f, 0.4f, 0.4f, 1f);
 
@@ -94,7 +99,7 @@ public class FlickeringLight : MonoBehaviour
                 flickerCoroutine = null;
             }
             
-            SetVisualState(true); 
+            SetLightState(true); 
             
             if (audioSource.isPlaying) audioSource.Stop();
         }
@@ -104,7 +109,7 @@ public class FlickeringLight : MonoBehaviour
     {
         while (isSoundActive || isVisualActive)
         {
-            if (isVisualActive) SetVisualState(true);
+            if (isVisualActive) SetLightState(true);
             
             if (isSoundActive && isVisualActive && flickOnClip != null) 
                 audioSource.PlayOneShot(flickOnClip, 1.0f); 
@@ -115,7 +120,7 @@ public class FlickeringLight : MonoBehaviour
             float onDuration = Random.Range(minOnTime, maxOnTime);
             yield return new WaitForSeconds(onDuration);
 
-            if (isVisualActive) SetVisualState(false);
+            if (isVisualActive) SetLightState(false);
 
             audioSource.volume = 0f;
 
@@ -124,16 +129,25 @@ public class FlickeringLight : MonoBehaviour
         }
     }
 
-    private void SetVisualState(bool isOn)
+    private void SetLightState(bool isOn)
     {
         if (lightObject != null) lightObject.SetActive(isOn);
 
+        float targetAlpha = isOn ? 0f : darknessIntensity;
+
+        // 1. Overlay Ruangan
         if (roomDarknessOverlay != null)
         {
-            float targetAlpha = isOn ? 0f : darknessIntensity;
             roomDarknessOverlay.color = new Color(0, 0, 0, targetAlpha);
         }
 
+        // 2. Overlay Jendela (BARU)
+        if (windowDarknessOverlay != null)
+        {
+            windowDarknessOverlay.color = new Color(0, 0, 0, targetAlpha);
+        }
+
+        // 3. Player
         if (playerReceiver != null)
         {
             if (isOn)
