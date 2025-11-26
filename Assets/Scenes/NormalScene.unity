@@ -4119,7 +4119,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3140085275392652523, guid: ef63f54dff8b9024dbbf3f834d68a74e, type: 3}
       propertyPath: runSpeed
-      value: 50
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 3259291014558968968, guid: ef63f54dff8b9024dbbf3f834d68a74e, type: 3}
       propertyPath: m_FlipX
