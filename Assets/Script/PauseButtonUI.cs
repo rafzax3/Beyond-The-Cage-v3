@@ -12,11 +12,15 @@ public class PauseButtonUI : MonoBehaviour
     [SerializeField] private Sprite pauseIcon;
     [SerializeField] private Sprite resumeIcon;
     
-    [Header("Pengaturan Scene")]
-    [Tooltip("Nama scene Main Menu")]
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
-    [Tooltip("Nama scene Intro Cutscene")]
-    [SerializeField] private string introSceneName = "Intro_Cutscene"; // <-- TAMBAHAN BARU
+    [Header("Pengaturan")]
+    [Tooltip("Daftar nama scene di mana tombol HARUS SEMBUNYI")]
+    // Tambahkan scene ending Anda di sini
+    [SerializeField] private string[] hiddenScenes = new string[] { 
+        "MainMenu", 
+        "Intro_Cutscene", 
+        "EndingTextScene", 
+        "EndingCutscene" 
+    };
 
     void Start()
     {
@@ -25,6 +29,7 @@ public class PauseButtonUI : MonoBehaviour
             pauseButton.onClick.RemoveAllListeners();
             pauseButton.onClick.AddListener(TogglePause);
         }
+        
         UpdateVisibility();
     }
 
@@ -44,13 +49,17 @@ public class PauseButtonUI : MonoBehaviour
 
         string currentScene = SceneManager.GetActiveScene().name;
         
-        // --- LOGIKA BARU ---
-        // Tombol mati jika di Main Menu ATAU di Intro
-        bool isMenu = (currentScene == mainMenuSceneName);
-        bool isIntro = (currentScene == introSceneName);
+        bool shouldHide = false;
+        foreach (string sceneName in hiddenScenes)
+        {
+            if (currentScene == sceneName)
+            {
+                shouldHide = true;
+                break;
+            }
+        }
 
-        bool shouldBeActive = !isMenu && !isIntro;
-        // -------------------
+        bool shouldBeActive = !shouldHide;
 
         if (pauseButton.gameObject.activeSelf != shouldBeActive)
         {

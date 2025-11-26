@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement; 
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic; // Penting untuk List
 
 public class PauseMenu : MonoBehaviour
 {
@@ -10,13 +11,19 @@ public class PauseMenu : MonoBehaviour
     [Header("Referensi UI")]
     [SerializeField] private GameObject pauseCanvas;
     [SerializeField] private Button resumeButton;
-    [SerializeField] private Button restartButton; // Urutan 2
-    [SerializeField] private Button hintButton;    // Urutan 3
-    [SerializeField] private Button quitButton;    // Urutan 4
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button hintButton;
+    [SerializeField] private Button quitButton;
 
     [Header("Pengaturan")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private string prologSceneName = "FirstRoom"; 
+    
+    // --- FITUR BARU: Scene Terlarang ---
+    [Header("Scene Tanpa Pause")]
+    [Tooltip("Daftar scene di mana pause dinonaktifkan sepenuhnya")]
+    [SerializeField] private List<string> disabledScenes = new List<string>() { "MainMenu", "Intro_Cutscene", "EndingTextScene", "EndingCutscene" };
+    // -----------------------------------
 
     [Header("Audio")]
     [SerializeField] private AudioSource sfxSourceUI;
@@ -38,17 +45,24 @@ public class PauseMenu : MonoBehaviour
         
         if (sfxSourceUI == null) sfxSourceUI = GetComponent<AudioSource>();
 
-        // --- URUTAN TOMBOL DIPERBARUI ---
         buttons = new Button[] { resumeButton, restartButton, hintButton, quitButton };
-        // --------------------------------
         
         if (pauseCanvas != null) pauseCanvas.SetActive(false);
     }
 
     void Update()
     {
-        string currentSceneName = SceneManager.GetActiveScene().name;
-        if (currentSceneName == mainMenuSceneName) return;
+        // --- LOGIKA BARU: CEK SCENE TERLARANG ---
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (disabledScenes.Contains(currentScene))
+        {
+            // Jika sedang di scene terlarang, matikan fitur pause
+            // Dan jika sedang terlanjur pause, paksa resume
+            if (isPaused) ResumeGame();
+            return;
+        }
+        // ----------------------------------------
+
         if (resumeCoroutine != null || quitCoroutine != null) return;
         if (TutorialManager.instance != null && TutorialManager.instance.IsInTutorialMode()) return;
 
@@ -87,7 +101,6 @@ public class PauseMenu : MonoBehaviour
 
     public bool IsGamePaused() { return isPaused || resumeCoroutine != null || quitCoroutine != null; }
 
-    // --- DIBUAT PUBLIC ---
     public void PauseGame()
     {
         isPaused = true;
@@ -147,7 +160,6 @@ public class PauseMenu : MonoBehaviour
         
         if (InspectManager.instance != null) InspectManager.instance.CancelInspect();
         if (TutorialManager.instance != null) TutorialManager.instance.ResetTutorialState();
-        // if (ObjectiveManager.instance != null) ObjectiveManager.instance.HideObjective(); // Dihapus sesuai request
 
         if (FadeManager.instance != null) yield return StartCoroutine(FadeManager.instance.FadeOut());
         
@@ -169,7 +181,6 @@ public class PauseMenu : MonoBehaviour
         
         if (InspectManager.instance != null) InspectManager.instance.CancelInspect();
         if (TutorialManager.instance != null) TutorialManager.instance.ResetTutorialState();
-        // if (ObjectiveManager.instance != null) ObjectiveManager.instance.HideObjective(); // Dihapus sesuai request
         if (MusicManager.instance != null) MusicManager.instance.PlayMenuMusic();
         
         playerMovement = null;
