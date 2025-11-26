@@ -9,6 +9,10 @@ public class WindowJumpscare : MonoBehaviour
     [Header("Referensi Wajib")]
     [SerializeField] private VideoPlayer targetVideoPlayer;
 
+    [Header("Mode")]
+    [Tooltip("Jika dicentang, ini hanya jendela biasa (bukan jumpscare)")]
+    [SerializeField] private bool isDecorationOnly = false;
+
     [Header("Video Settings")]
     [SerializeField] private VideoClip rainWindowClip;
     [SerializeField] private VideoClip scareWindowClip;
@@ -32,6 +36,7 @@ public class WindowJumpscare : MonoBehaviour
             targetVideoPlayer = GetComponentInChildren<VideoPlayer>();
         }
 
+        // Setup Awal
         if (targetVideoPlayer != null && rainWindowClip != null)
         {
             targetVideoPlayer.clip = rainWindowClip;
@@ -49,10 +54,11 @@ public class WindowJumpscare : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!GameData.isAnomalyPresent)
-        {
-            return;
-        }
+        // Jika ini cuma dekorasi, jangan lakukan apa-apa
+        if (isDecorationOnly) return;
+
+        // Jika bukan anomaly, jangan jumpscare
+        if (!GameData.isAnomalyPresent) return;
 
         if (!hasTriggered && other.CompareTag("Player"))
         {

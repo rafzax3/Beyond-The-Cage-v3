@@ -14,25 +14,18 @@ public class TutorialManager : MonoBehaviour
     [Header("Panel Tutorial Run (First Room)")]
     [SerializeField] private GameObject runTutorialPanel;
     [SerializeField] private GameObject pressFToSkipText;
-    [SerializeField] private float runDisplayDuration = 10f;
+    [Tooltip("Durasi maksimal tutorial lari muncul (jika tidak di-skip)")]
+    [SerializeField] private float runDisplayDuration = 10f; // Default 10 detik
 
     [Header("Panel Tutorial Letter (Hint)")]
     [SerializeField] private GameObject letterPopupPanel; 
-    
-    // --- TAMBAHAN BARU: Referensi Teks di dalam Panel Hint ---
-    [Tooltip("Objek TextMeshProUGUI di dalam panel surat yang berisi tulisan")]
     [SerializeField] private TextMeshProUGUI letterContentText;
-    // -------------------------------------------------------
-
     [SerializeField] private GameObject hintReminderText; 
     [SerializeField] private float reminderDuration = 3f; 
 
     [Header("Isi Teks Hint")]
-    [Tooltip("Teks yang muncul saat player mengambil surat di ruangan")]
-    [TextArea(3, 5)] [SerializeField] private string letterRoomText = "Ini adalah surat misterius yang ditemukan di lorong...";
-    
-    [Tooltip("Teks yang muncul saat player membuka Hint di Pause Menu")]
-    [TextArea(3, 5)] [SerializeField] private string letterPauseText = "Petunjuk: Perhatikan jam dinding...";
+    [TextArea(3, 5)] [SerializeField] private string letterRoomText = "Ini adalah surat misterius...";
+    [TextArea(3, 5)] [SerializeField] private string letterPauseText = "Petunjuk: Perhatikan jam...";
 
     [Header("Audio")]
     [SerializeField] private AudioSource tutorialAudioSource;
@@ -43,7 +36,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.5f;
 
     private bool isShowingHint = false;
-    private bool currentHintIsFromPause = false; 
+    private bool currentHintIsFromPause = false;
     private PlayerMovement playerMovement;
 
     void Awake()
@@ -51,11 +44,22 @@ public class TutorialManager : MonoBehaviour
         if (instance == null) { instance = this; DontDestroyOnLoad(gameObject); }
         else { Destroy(gameObject); }
 
+        ResetTutorialState();
+    }
+
+    public void ResetTutorialState()
+    {
+        StopAllCoroutines();
+        
         SetupPanel(walkTutorialPanel);
         SetupPanel(runTutorialPanel);
         SetupPanel(letterPopupPanel);
         SetupPanel(hintReminderText);
+        
         if (pressFToSkipText != null) pressFToSkipText.SetActive(false);
+        
+        isShowingHint = false;
+        currentHintIsFromPause = false;
     }
 
     void SetupPanel(GameObject panel)
@@ -64,7 +68,6 @@ public class TutorialManager : MonoBehaviour
         {
             CanvasGroup cg = panel.GetComponent<CanvasGroup>();
             if (cg == null) cg = panel.AddComponent<CanvasGroup>();
-            
             cg.alpha = 0;
             panel.SetActive(false);
         }
@@ -121,13 +124,15 @@ public class TutorialManager : MonoBehaviour
         
         if (pressFToSkipText != null) pressFToSkipText.SetActive(true);
 
+        // --- LOGIKA BARU: Tunggu Durasi ATAU Tombol F ---
         float timer = runDisplayDuration;
         while (timer > 0 && runTutorialPanel.activeSelf) 
         {
-            if (Input.GetKeyDown(KeyCode.F)) break; 
+            if (Input.GetKeyDown(KeyCode.F)) break; // Skip jika tekan F
             timer -= Time.deltaTime;
             yield return null;
         }
+        // ------------------------------------------------
 
         StartCoroutine(FadeUI(runTutorialPanel, false)); 
         if (pressFToSkipText != null) pressFToSkipText.SetActive(false);
@@ -155,22 +160,32 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator SequenceCloseHint()
     {
+        // 1. Fade Out Panel Hint (Tunggu sampai selesai dulu!)
         yield return StartCoroutine(FadeUI(letterPopupPanel, false));
         
         isShowingHint = false; 
 
+        // Buka Kunci Player
         if (playerMovement != null)
         {
             playerMovement.SetLock(false, playerMovement.IsFacingRight());
         }
 
+        // 2. Cek apakah perlu menampilkan Reminder Text
+        // (Hanya jika BUKAN dari Pause Menu)
         if (!currentHintIsFromPause && hintReminderText != null)
         {
-            // --- PERBAIKAN: Jeda 1 detik sebelum teks muncul ---
+            // --- PERBAIKAN: Jeda 1 detik SETELAH panel hilang ---
             yield return new WaitForSeconds(1f); 
+            // ----------------------------------------------------
             
+            // Fade In Teks
             yield return StartCoroutine(FadeUI(hintReminderText, true)); 
+            
+            // Tunggu durasi baca
             yield return new WaitForSeconds(reminderDuration);
+            
+            // Fade Out Teks
             yield return StartCoroutine(FadeUI(hintReminderText, false)); 
         }
         
@@ -182,19 +197,11 @@ public class TutorialManager : MonoBehaviour
         isShowingHint = true;
         currentHintIsFromPause = fromPauseMenu;
 
-        // --- UPDATE TEKS SESUAI SUMBER ---
         if (letterContentText != null)
         {
-            if (fromPauseMenu)
-            {
-                letterContentText.text = letterPauseText;
-            }
-            else
-            {
-                letterContentText.text = letterRoomText;
-            }
+            if (fromPauseMenu) letterContentText.text = letterPauseText;
+            else letterContentText.text = letterRoomText;
         }
-        // ---------------------------------
 
         StartCoroutine(FadeUI(letterPopupPanel, true));
 

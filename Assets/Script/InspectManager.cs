@@ -85,10 +85,18 @@ public class InspectManager : MonoBehaviour
 
     void Update()
     {
+        // 1. Jangan inspect jika Pause
         if (PauseMenu.instance != null && PauseMenu.instance.IsGamePaused())
         {
             return;
         }
+
+        // 2. --- TAMBAHAN BARU: Jangan inspect jika sedang Tutorial/Hint ---
+        if (TutorialManager.instance != null && TutorialManager.instance.IsInTutorialMode())
+        {
+            return;
+        }
+        // ----------------------------------------------------------------
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -144,13 +152,10 @@ public class InspectManager : MonoBehaviour
             if (playerAnim != null) playerAnim.SetInteger("moveState", 0);
         }
 
-        // --- PERBAIKAN DISINI: Panggil fungsi, bukan akses variabel ---
         int currentHour = GameData.currentHour;
-        
-        Sprite spriteToShow = objectToInspect.GetSpriteForCurrentHour(currentHour);
         currentPages = objectToInspect.GetPagesForCurrentHour(currentHour);
+        Sprite spriteToShow = objectToInspect.GetSpriteForCurrentHour(currentHour);
         AudioClip soundToPlay = objectToInspect.inspectSound;
-        // -------------------------------------------------------------
 
         if (inspectSFXSource != null && soundToPlay != null)
         {

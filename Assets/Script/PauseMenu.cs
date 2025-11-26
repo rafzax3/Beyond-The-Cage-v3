@@ -10,9 +10,9 @@ public class PauseMenu : MonoBehaviour
     [Header("Referensi UI")]
     [SerializeField] private GameObject pauseCanvas;
     [SerializeField] private Button resumeButton;
-    [SerializeField] private Button hintButton; 
-    [SerializeField] private Button restartButton; 
-    [SerializeField] private Button quitButton;
+    [SerializeField] private Button restartButton; // Urutan 2
+    [SerializeField] private Button hintButton;    // Urutan 3
+    [SerializeField] private Button quitButton;    // Urutan 4
 
     [Header("Pengaturan")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
@@ -33,53 +33,31 @@ public class PauseMenu : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (instance == null) { instance = this; DontDestroyOnLoad(gameObject); }
+        else { Destroy(gameObject); return; }
         
-        if (sfxSourceUI == null)
-        {
-            sfxSourceUI = GetComponent<AudioSource>();
-        }
+        if (sfxSourceUI == null) sfxSourceUI = GetComponent<AudioSource>();
 
-        buttons = new Button[] { resumeButton, hintButton, restartButton, quitButton };
+        // --- URUTAN TOMBOL DIPERBARUI ---
+        buttons = new Button[] { resumeButton, restartButton, hintButton, quitButton };
+        // --------------------------------
+        
         if (pauseCanvas != null) pauseCanvas.SetActive(false);
     }
 
     void Update()
     {
         string currentSceneName = SceneManager.GetActiveScene().name;
-        if (currentSceneName == mainMenuSceneName)
-        {
-            return;
-        }
-
+        if (currentSceneName == mainMenuSceneName) return;
         if (resumeCoroutine != null || quitCoroutine != null) return;
-        
-        if (TutorialManager.instance != null && TutorialManager.instance.IsInTutorialMode())
-        {
-            return;
-        }
+        if (TutorialManager.instance != null && TutorialManager.instance.IsInTutorialMode()) return;
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isPaused)
-            {
-                ResumeGame();
-            }
+            if (isPaused) ResumeGame();
             else
             {
-                if (InspectManager.instance != null && InspectManager.instance.IsInspecting())
-                {
-                    return;
-                }
+                if (InspectManager.instance != null && InspectManager.instance.IsInspecting()) return;
                 PauseGame();
             }
         }
@@ -91,7 +69,6 @@ public class PauseMenu : MonoBehaviour
             selectedIndex--;
             if (selectedIndex < 0) selectedIndex = buttons.Length - 1;
             UpdateSelection();
-            
             if (sfxSourceUI != null && navSfx != null) sfxSourceUI.PlayOneShot(navSfx);
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
@@ -99,7 +76,6 @@ public class PauseMenu : MonoBehaviour
             selectedIndex++;
             if (selectedIndex >= buttons.Length) selectedIndex = 0;
             UpdateSelection();
-            
             if (sfxSourceUI != null && navSfx != null) sfxSourceUI.PlayOneShot(navSfx);
         }
 
@@ -109,12 +85,10 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    public bool IsGamePaused()
-    {
-        return isPaused || resumeCoroutine != null || quitCoroutine != null;
-    }
+    public bool IsGamePaused() { return isPaused || resumeCoroutine != null || quitCoroutine != null; }
 
-    void PauseGame()
+    // --- DIBUAT PUBLIC ---
+    public void PauseGame()
     {
         isPaused = true;
         Time.timeScale = 0f;
@@ -122,10 +96,7 @@ public class PauseMenu : MonoBehaviour
         if (sfxSourceUI != null && pauseSfx != null) sfxSourceUI.PlayOneShot(pauseSfx);
         
         if (playerMovement == null) playerMovement = FindObjectOfType<PlayerMovement>();
-        if (playerMovement != null)
-        {
-            playerMovement.SetLock(true, playerMovement.IsFacingRight());
-        }
+        if (playerMovement != null) playerMovement.SetLock(true, playerMovement.IsFacingRight());
         
         selectedIndex = 0;
         UpdateSelection();
@@ -133,27 +104,17 @@ public class PauseMenu : MonoBehaviour
 
     public void ResumeGame()
     {
-        if (resumeCoroutine == null)
-        {
-            resumeCoroutine = StartCoroutine(DelayedResume());
-        }
+        if (resumeCoroutine == null) resumeCoroutine = StartCoroutine(DelayedResume());
     }
 
     private IEnumerator DelayedResume()
     {
         if (sfxSourceUI != null && submitSfx != null) sfxSourceUI.PlayOneShot(submitSfx);
-        
         yield return null; 
-        
         isPaused = false;
         Time.timeScale = 1f; 
         if (pauseCanvas != null) pauseCanvas.SetActive(false);
-
-        if (playerMovement != null)
-        {
-            playerMovement.SetLock(false, playerMovement.IsFacingRight());
-        }
-
+        if (playerMovement != null) playerMovement.SetLock(false, playerMovement.IsFacingRight());
         resumeCoroutine = null;
     }
 
@@ -164,10 +125,7 @@ public class PauseMenu : MonoBehaviour
             if (pauseCanvas != null) pauseCanvas.SetActive(false);
             isPaused = false; 
             Time.timeScale = 1f; 
-
-            // --- PENTING: Kirim 'true' (Artinya: Ini dari Pause Menu) ---
             TutorialManager.instance.OpenHint(true); 
-            // -----------------------------------------------------------
         }
     }
 
@@ -179,9 +137,8 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator DelayedRestart()
     {
         if (sfxSourceUI != null && submitSfx != null) sfxSourceUI.PlayOneShot(submitSfx);
-        
         yield return null;
-
+        
         GameData.ResetAllData();
         
         isPaused = false;
@@ -189,6 +146,8 @@ public class PauseMenu : MonoBehaviour
         if (pauseCanvas != null) pauseCanvas.SetActive(false);
         
         if (InspectManager.instance != null) InspectManager.instance.CancelInspect();
+        if (TutorialManager.instance != null) TutorialManager.instance.ResetTutorialState();
+        // if (ObjectiveManager.instance != null) ObjectiveManager.instance.HideObjective(); // Dihapus sesuai request
 
         if (FadeManager.instance != null) yield return StartCoroutine(FadeManager.instance.FadeOut());
         
@@ -197,10 +156,7 @@ public class PauseMenu : MonoBehaviour
 
     public void QuitToMenu()
     {
-        if (quitCoroutine == null)
-        {
-            quitCoroutine = StartCoroutine(DelayedQuitToMenu());
-        }
+        if (quitCoroutine == null) quitCoroutine = StartCoroutine(DelayedQuitToMenu());
     }
 
     private IEnumerator DelayedQuitToMenu()
@@ -211,22 +167,14 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f; 
         if (pauseCanvas != null) pauseCanvas.SetActive(false);
         
-        if (InspectManager.instance != null)
-        {
-            InspectManager.instance.CancelInspect();
-        }
-        
-        if (MusicManager.instance != null)
-        {
-            MusicManager.instance.PlayMenuMusic();
-        }
+        if (InspectManager.instance != null) InspectManager.instance.CancelInspect();
+        if (TutorialManager.instance != null) TutorialManager.instance.ResetTutorialState();
+        // if (ObjectiveManager.instance != null) ObjectiveManager.instance.HideObjective(); // Dihapus sesuai request
+        if (MusicManager.instance != null) MusicManager.instance.PlayMenuMusic();
         
         playerMovement = null;
         
-        if (FadeManager.instance != null)
-        {
-            yield return StartCoroutine(FadeManager.instance.FadeOut());
-        }
+        if (FadeManager.instance != null) yield return StartCoroutine(FadeManager.instance.FadeOut());
         
         SceneManager.LoadScene(mainMenuSceneName);
         quitCoroutine = null;
@@ -236,30 +184,15 @@ public class PauseMenu : MonoBehaviour
     {
         for (int i = 0; i < buttons.Length; i++)
         {
-            if (buttons[i] != null && i == selectedIndex)
-            {
-                buttons[i].Select();
-            }
+            if (buttons[i] != null && i == selectedIndex) buttons[i].Select();
         }
     }
 
     void PressSelectedButton()
     {
-        if (buttons[selectedIndex] == resumeButton)
-        {
-            ResumeGame();
-        }
-        else if (buttons[selectedIndex] == hintButton) 
-        {
-            ShowHint();
-        }
-        else if (buttons[selectedIndex] == restartButton) 
-        {
-            RestartGame();
-        }
-        else if (buttons[selectedIndex] == quitButton)
-        {
-            QuitToMenu();
-        }
+        if (buttons[selectedIndex] == resumeButton) ResumeGame();
+        else if (buttons[selectedIndex] == restartButton) RestartGame();
+        else if (buttons[selectedIndex] == hintButton) ShowHint();
+        else if (buttons[selectedIndex] == quitButton) QuitToMenu();
     }
 }

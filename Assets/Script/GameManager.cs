@@ -4,11 +4,11 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
 
-[RequireComponent(typeof(AudioSource))] // Butuh AudioSource untuk SFX Pintu
 public class GameManager : MonoBehaviour
 {
     [Header("Tipe Lorong")]
     [SerializeField] private bool isPrologRoom = false;
+    
     [SerializeField] private string nextPrologSceneName = "SecondRoom";
 
     [Header("Pengaturan Ukuran Player")]
@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string endingRoomName = "EndingRoom"; 
 
     [Header("Audio Khusus")]
-    [Tooltip("Suara yang akan diputar SEKALI saat scene ini dimulai (misal: Pintu Tertutup)")]
     [SerializeField] private AudioClip startSceneSfx; 
 
     [Header("Scene References")]
@@ -40,9 +39,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float autoWalkSpeed = 3f;
     [SerializeField] private float autoWalkDuration = 1f;
     
+    // [Tooltip("Teks Objective yang muncul")] 
+    // [SerializeField] private string objectiveTextContent = "Escape the loop."; // DIHAPUS
+
     private bool isThisSceneAnomaly = false;
     private bool isTransitioning = false; 
-    private AudioSource sfxSource; // AudioSource lokal GameManager
+    private AudioSource sfxSource; 
 
     void Awake()
     {
@@ -79,12 +81,10 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // --- PLAY START SFX (BARU) ---
         if (sfxSource != null && startSceneSfx != null)
         {
             sfxSource.PlayOneShot(startSceneSfx);
         }
-        // -----------------------------
 
         if (isPrologRoom)
         {
@@ -103,7 +103,8 @@ public class GameManager : MonoBehaviour
         else
         {
             if (player != null) player.transform.localScale = new Vector3(normalPlayerScale.x, normalPlayerScale.y, 1f);
-            
+            if (playerMovement != null) playerMovement.canRun = true; 
+
             CameraFollow mainCameraFollow = FindObjectOfType<CameraFollow>();
             if (mainCameraFollow != null && player != null) mainCameraFollow.target = player.transform;
         }
@@ -171,7 +172,19 @@ public class GameManager : MonoBehaviour
         if (playerMovement != null) playerMovement.SetScriptedAnimation(0); 
         
         if (playerMovement != null) 
-            playerMovement.SetLock(false, GameData.spawnPlayerFromLeft); 
+            playerMovement.SetLock(false, GameData.spawnPlayerFromLeft);
+        
+        // --- BAGIAN OBJECTIVE DIHAPUS ---
+        /*
+        if (SceneManager.GetActiveScene().name == "FirstRoom") 
+        {
+            if (ObjectiveManager.instance != null)
+            {
+                ObjectiveManager.instance.ShowObjective(objectiveTextContent, 2f); 
+            }
+        }
+        */
+        // --------------------------------
             
         if (TutorialManager.instance != null)
         {
@@ -216,6 +229,15 @@ public class GameManager : MonoBehaviour
             TutorialManager.instance.HideAllTutorials();
         }
 
+        // --- BAGIAN OBJECTIVE DIHAPUS ---
+        /*
+        if (ObjectiveManager.instance != null)
+        {
+            ObjectiveManager.instance.HideObjective();
+        }
+        */
+        // --------------------------------
+
         float walkDirection = (doorID == "Right") ? 1f : -1f;
         
         if(playerMovement != null) playerMovement.SetScriptedAnimation(1);
@@ -235,7 +257,7 @@ public class GameManager : MonoBehaviour
             if (doorID == "Right") 
             {
                 GameData.spawnPlayerFromLeft = true; 
-                if (nextPrologSceneName == normalSceneName) GameData.currentHour = 0; // Reset jam ke 0 (Jam 12) saat masuk Loop pertama kali
+                if (nextPrologSceneName == normalSceneName) GameData.currentHour = 0; 
                 
                 SceneManager.LoadScene(nextPrologSceneName);
             }
@@ -260,7 +282,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            GameData.currentHour = 0; // Reset ke Jam 12
+            GameData.currentHour = 0; 
         }
         
         LoadNextHallway(false);
@@ -272,6 +294,15 @@ public class GameManager : MonoBehaviour
 
         if (loadEnding)
         {
+            // --- BAGIAN OBJECTIVE DIHAPUS ---
+            /*
+            if (ObjectiveManager.instance != null)
+            {
+                ObjectiveManager.instance.HideObjective();
+            }
+            */
+            // --------------------------------
+
             sceneToLoad = endingRoomName;
         }
         else 
