@@ -418,8 +418,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1001.887, y: 388.9795}
+  m_AnchoredPosition: {x: 24, y: 10}
+  m_SizeDelta: {x: 2701.1318, y: 388.9795}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1474153049
 MonoBehaviour:
@@ -441,7 +441,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hey Lyx
+  m_text: 'Lyx? Why are you here?
+
+    Come on lets go inside, i have some treats
+    for you.
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8357c3b364cc28547a438932d851d8b2, type: 2}
   m_sharedMaterial: {fileID: 519176447658949530, guid: 8357c3b364cc28547a438932d851d8b2, type: 2}
@@ -468,8 +473,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 194.8
-  m_fontSizeBase: 194.8
+  m_fontSize: 157.55
+  m_fontSizeBase: 157.55
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -504,7 +509,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -471.168, y: 0, z: -471.16815, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -625,13 +630,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   endingText: {fileID: 1474153049}
-  voiceLine: {fileID: 8300000, guid: f204c32f6f0839a459d79678c4b60a08, type: 3}
+  voiceLine: {fileID: 8300000, guid: 8974725af3d5536469542d4952920a81, type: 3}
   audioSource: {fileID: 2101110072}
-  delayBeforeStart: 1
-  textFadeInDuration: 2
-  textStayDuration: 4
-  textFadeOutDuration: 2
-  mainMenuSceneName: MainMenu
+  delayBeforeStart: 0.5
+  delayBetweenVoiceAndText: 5
+  fadeDuration: 1
+  delayBetweenLines: 0.5
+  endingLines:
+  - textContent: Lyx? Why are you here?
+    displayDuration: 1
+  - textContent: Come on lets go inside, i have some treats for you.
+    displayDuration: 2.5
+  nextSceneName: EndingCutscene
 --- !u!82 &2101110072
 AudioSource:
   m_ObjectHideFlags: 0
@@ -644,7 +654,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.795
   m_Pitch: 1
   Loop: 0
   Mute: 0

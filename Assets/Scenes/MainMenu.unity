@@ -319,7 +319,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 3251d024ca87acf4784c1dd9d03402c8, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 062120bc04721294289a38fc2ce0c363, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -516,7 +516,7 @@ MonoBehaviour:
   menuMusicSource: {fileID: 321979074}
   gameplayMusicSource: {fileID: 321979073}
   endingMusicSource: {fileID: 321979077}
-  maxVolume: 0.697
+  maxVolume: 0.596
   fadeDuration: 1
 --- !u!4 &321979076
 Transform:
@@ -543,7 +543,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: fc3bc3f4ffd19434fbb0fa86176d4b3a, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 18c8e897f7e13d34cbee866ed6e9e245, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

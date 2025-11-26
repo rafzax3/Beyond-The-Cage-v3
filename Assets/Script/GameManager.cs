@@ -17,11 +17,17 @@ public class GameManager : MonoBehaviour
     
     [Header("Scene Names")]
     [SerializeField] private string normalSceneName = "Lorong_Normal";
-    [SerializeField] private List<string> anomalySceneNames;
     [SerializeField] private string endingRoomName = "EndingRoom"; 
 
-    [Header("Audio Khusus")]
-    [SerializeField] private AudioClip startSceneSfx; 
+    // --- FITUR BARU: KATEGORI KESULITAN ---
+    [Header("Daftar Scene Anomali (Per Kesulitan)")]
+    [Tooltip("Anomali untuk Jam 12 & 1")]
+    [SerializeField] private List<string> easyAnomalies;
+    [Tooltip("Anomali untuk Jam 2 & 3")]
+    [SerializeField] private List<string> mediumAnomalies;
+    [Tooltip("Anomali untuk Jam 4 & 5")]
+    [SerializeField] private List<string> hardAnomalies;
+    // --------------------------------------
 
     [Header("Scene References")]
     [SerializeField] private GameObject player; 
@@ -35,13 +41,19 @@ public class GameManager : MonoBehaviour
     [Header("Game Rules")]
     [SerializeField] private int finalHour = 6; 
     
+    [Header("Probabilitas Dinamis")]
+    [Tooltip("Berapa % peluang normal turun setiap kali dapat normal? (0.15 = 15%)")]
+    [SerializeField] private float probabilityReductionPerStack = 0.15f;
+    [Tooltip("Maksimal stack pengurangan (2x = 30%)")]
+    [SerializeField] private int maxProbabilityStack = 2;
+
+    [Header("Audio Khusus")]
+    [SerializeField] private AudioClip startSceneSfx; 
+
     [Header("Transition Settings")]
     [SerializeField] private float autoWalkSpeed = 3f;
     [SerializeField] private float autoWalkDuration = 1f;
     
-    // [Tooltip("Teks Objective yang muncul")] 
-    // [SerializeField] private string objectiveTextContent = "Escape the loop."; // DIHAPUS
-
     private bool isThisSceneAnomaly = false;
     private bool isTransitioning = false; 
     private AudioSource sfxSource; 
@@ -173,18 +185,6 @@ public class GameManager : MonoBehaviour
         
         if (playerMovement != null) 
             playerMovement.SetLock(false, GameData.spawnPlayerFromLeft);
-        
-        // --- BAGIAN OBJECTIVE DIHAPUS ---
-        /*
-        if (SceneManager.GetActiveScene().name == "FirstRoom") 
-        {
-            if (ObjectiveManager.instance != null)
-            {
-                ObjectiveManager.instance.ShowObjective(objectiveTextContent, 2f); 
-            }
-        }
-        */
-        // --------------------------------
             
         if (TutorialManager.instance != null)
         {
@@ -228,15 +228,6 @@ public class GameManager : MonoBehaviour
         {
             TutorialManager.instance.HideAllTutorials();
         }
-
-        // --- BAGIAN OBJECTIVE DIHAPUS ---
-        /*
-        if (ObjectiveManager.instance != null)
-        {
-            ObjectiveManager.instance.HideObjective();
-        }
-        */
-        // --------------------------------
 
         float walkDirection = (doorID == "Right") ? 1f : -1f;
         
@@ -294,40 +285,79 @@ public class GameManager : MonoBehaviour
 
         if (loadEnding)
         {
-            // --- BAGIAN OBJECTIVE DIHAPUS ---
-            /*
-            if (ObjectiveManager.instance != null)
-            {
-                ObjectiveManager.instance.HideObjective();
-            }
-            */
-            // --------------------------------
-
             sceneToLoad = endingRoomName;
         }
         else 
         {
-            if (GameData.currentHour == 0) 
-            {
-                GameData.isAnomalyPresent = (Random.value < 0.5f);
-            }
-            else 
-            {
-                GameData.isAnomalyPresent = (Random.value < 0.5f);
-            }
+            // --- LOGIKA PROBABILITAS DINAMIS ---
             
+            // Peluang dasar Anomaly = 50% (0.5)
+            float anomalyChance = 0.5f;
+            
+            // Tambahkan peluang berdasarkan stack normal
+            // Semakin banyak normal berturut-turut, semakin tinggi peluang anomali
+            // (Peluang Normal turun = Peluang Anomali naik)
+            int stacks = Mathf.Clamp(GameData.consecutiveNormalCount, 0, maxProbabilityStack);
+            float extraChance = stacks * probabilityReductionPerStack;
+            
+            anomalyChance += extraChance; // Misal: 0.5 + 0.15 = 0.65 (65% Anomali)
+
+            // Roll dadu
+            GameData.isAnomalyPresent = (Random.value < anomalyChance);
+
+            // Reset atau Tambah Stack
             if (GameData.isAnomalyPresent)
             {
-                if (anomalySceneNames == null || anomalySceneNames.Count == 0)
+                GameData.consecutiveNormalCount = 0; // Reset jika dapat anomali
+            }
+            else
+            {
+                GameData.consecutiveNormalCount++; // Tambah stack jika dapat normal
+            }
+            // -----------------------------------
+
+            if (GameData.isAnomalyPresent)
+            {
+                // --- LOGIKA PEMILIHAN TINGKAT KESULITAN ---
+                List<string> chosenList = new List<string>();
+
+                // Pilih list berdasarkan jam
+                // Jam 12 (0) & 1 -> Easy
+                if (GameData.currentHour <= 1) 
                 {
-                    Debug.LogError("Daftar Anomaly Scene kosong!");
+                    chosenList = easyAnomalies;
+                }
+                // Jam 2 & 3 -> Medium
+                else if (GameData.currentHour <= 3) 
+                {
+                    chosenList = mediumAnomalies;
+                }
+                // Jam 4 & 5 -> Hard
+                else 
+                {
+                    chosenList = hardAnomalies;
+                }
+
+                // Fallback: Jika list terpilih kosong (misal belum diisi), 
+                // gabungkan dengan list yang lebih mudah agar game tidak error
+                if (chosenList == null || chosenList.Count == 0)
+                {
+                    if (mediumAnomalies != null) chosenList.AddRange(mediumAnomalies);
+                    if (easyAnomalies != null) chosenList.AddRange(easyAnomalies);
+                }
+
+                // Load
+                if (chosenList == null || chosenList.Count == 0)
+                {
+                    Debug.LogError("SEMUA Daftar Anomaly Scene kosong! Memuat normal scene.");
                     sceneToLoad = normalSceneName; 
                 }
                 else
                 {
-                    int randomIndex = Random.Range(0, anomalySceneNames.Count);
-                    sceneToLoad = anomalySceneNames[randomIndex];
+                    int randomIndex = Random.Range(0, chosenList.Count);
+                    sceneToLoad = chosenList[randomIndex];
                 }
+                // ------------------------------------------
             }
             else
             {

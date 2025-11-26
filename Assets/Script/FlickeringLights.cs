@@ -4,8 +4,13 @@ using System.Collections;
 [RequireComponent(typeof(AudioSource))]
 public class FlickeringLight : MonoBehaviour
 {
+    [Header("Mode")]
+    [Tooltip("Untuk HP: Centang ini agar suara/cahaya main 1x saja, tidak loop.")]
+    [SerializeField] private bool isOneShot = false;
+    [Tooltip("Untuk Lampu Hantu: Centang ini agar nyala terus tanpa kedip.")]
+    [SerializeField] private bool isSteadyLight = false; 
+
     [Header("Cahaya (Light 2D / Sprite)")]
-    [Tooltip("Kosongkan ini jika objeknya hanya suara (misal: TV)")]
     [SerializeField] private GameObject lightObject; 
 
     [Header("Efek Ruangan & Player")]
@@ -20,7 +25,7 @@ public class FlickeringLight : MonoBehaviour
     [SerializeField] private Color redLightColor = new Color(1f, 0f, 0f, 0.5f); 
     [SerializeField] private Color playerRedColor = new Color(1f, 0.5f, 0.5f, 1f); 
 
-    [Header("Pengaturan Kedip")]
+    [Header("Pengaturan Kedip (Lampu Biasa)")]
     [SerializeField] private float minOnTime = 0.1f;
     [SerializeField] private float maxOnTime = 2.0f;
     [SerializeField] private float minOffTime = 0.1f;
@@ -30,13 +35,9 @@ public class FlickeringLight : MonoBehaviour
     [SerializeField] private AudioClip electricBuzzClip;
     [SerializeField] private AudioClip flickOnClip;
     
-    // --- FITUR BARU: TV AUDIO ---
-    [Header("Anomaly Audio (TV/Radio)")]
-    [Tooltip("Audio untuk ruangan NORMAL (isi ini untuk TV)")]
+    [Header("Anomaly Audio (HP/TV)")]
     [SerializeField] private AudioClip normalAudioClip;
-    [Tooltip("Audio untuk ruangan ANOMALY (isi ini untuk TV)")]
     [SerializeField] private AudioClip anomalyAudioClip;
-    // ----------------------------
 
     [Range(1f, 5f)] [SerializeField] private float buzzVolumeMultiplier = 2.0f;
 
@@ -47,6 +48,9 @@ public class FlickeringLight : MonoBehaviour
     private bool isSoundActive = false;
     private bool isVisualActive = false;
     private bool isAnomalyRoom = false; 
+    
+    // Status untuk One Shot
+    private bool hasPlayed = false;
 
     void Awake()
     {
@@ -55,10 +59,10 @@ public class FlickeringLight : MonoBehaviour
 
         if (audioSource != null)
         {
-            audioSource.loop = true;
+            audioSource.loop = !isOneShot; // Jika OneShot, jangan loop
             audioSource.playOnAwake = false;
             
-            // Logika Pemilihan Audio
+            // Pilih Audio
             if (normalAudioClip != null || anomalyAudioClip != null)
             {
                 if (isAnomalyRoom && anomalyAudioClip != null)
@@ -75,6 +79,7 @@ public class FlickeringLight : MonoBehaviour
             audioSource.Stop(); 
         }
         
+        // Default mati
         SetLightState(false, false);
     }
 
@@ -105,9 +110,13 @@ public class FlickeringLight : MonoBehaviour
     {
         if (isSoundActive || isVisualActive)
         {
+            // Jika Mode HP (OneShot) dan sudah pernah bunyi, jangan bunyi lagi
+            if (isOneShot && hasPlayed) return;
+
             if (flickerCoroutine == null)
             {
-                if (isSoundActive && audioSource.clip != null && !audioSource.isPlaying)
+                // Untuk mode biasa (Buzz), mainkan audio di sini
+                if (!isOneShot && isSoundActive && audioSource.clip != null && !audioSource.isPlaying)
                     audioSource.Play();
 
                 flickerCoroutine = StartCoroutine(FlickerRoutine());
@@ -120,13 +129,53 @@ public class FlickeringLight : MonoBehaviour
                 StopCoroutine(flickerCoroutine);
                 flickerCoroutine = null;
             }
-            SetLightState(true, false); 
+            
+            // Jika HP/OneShot -> Matikan total saat keluar
+            // Jika Lampu -> Nyalakan (biar terlihat normal dari jauh)
+            SetLightState(!isOneShot, false); 
+            
             if (audioSource.isPlaying) audioSource.Stop();
         }
     }
 
     private IEnumerator FlickerRoutine()
     {
+        // --- MODE HP / ONE SHOT ---
+        if (isOneShot)
+        {
+            hasPlayed = true;
+            audioSource.volume = 1.0f * buzzVolumeMultiplier;
+            audioSource.Play();
+
+            // Selama audio masih main, nyalakan cahaya
+            while (audioSource.isPlaying)
+            {
+                SetLightState(true, false); 
+                yield return null;
+            }
+            
+            // Audio selesai -> Matikan cahaya
+            SetLightState(false, false);
+            flickerCoroutine = null;
+            yield break;
+        }
+
+        // --- MODE STEADY ---
+        if (isSteadyLight)
+        {
+            while (isSoundActive || isVisualActive)
+            {
+                if (isVisualActive) SetLightState(true, false);
+                
+                if (isSoundActive) audioSource.volume = 1.0f * buzzVolumeMultiplier;
+                else audioSource.volume = 0f;
+
+                yield return null; 
+            }
+            yield break; 
+        }
+
+        // --- MODE KEDIP (LAMPU RUSAK) ---
         while (isSoundActive || isVisualActive)
         {
             bool isRedBlink = false;
