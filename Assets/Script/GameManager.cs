@@ -264,11 +264,22 @@ public class GameManager : MonoBehaviour
 
         if (correctChoice)
         {
+            // --- LOGIKA UNLOCK ACHIEVEMENT (BARU) ---
+            // Jika kita berada di ruangan ANOMALY (dan kita memilih benar/kanan),
+            // maka kita baru saja "mengalahkan" anomali tersebut.
+            if (isThisSceneAnomaly)
+            {
+                // Gunakan nama scene saat ini sebagai ID
+                string currentSceneID = SceneManager.GetActiveScene().name;
+                GameData.UnlockAnomaly(currentSceneID);
+            }
+            // ----------------------------------------
+
             GameData.currentHour++;
-            if (GameData.currentHour == finalHour) 
-            { 
-                LoadNextHallway(true); 
-                yield break; 
+            if (GameData.currentHour == finalHour)
+            {
+                LoadNextHallway(true);
+                yield break;
             }
         }
         else
